@@ -8,20 +8,19 @@ from .utils import calculate_birthday_countdown
 from .models import Birthday
 # Импортируем класс пагинатора.
 from django.core.paginator import Paginator
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.urls import reverse_lazy
 
 
-class BirthdayUpdateView(UpdateView):
+class BirthdayMixin:
+    # Указываем модель, с которой работает CBV...
     model = Birthday
-    form_class = BirthdayForm
-    template_name = 'birthday/birthday.html'
+    # Указываем namespace:name страницы, куда будет перенаправлен пользователь
+    # после создания объекта:
     success_url = reverse_lazy('birthday:list')
 
 
-class BirthdayCreateView(CreateView):
-    # Указываем модель, с которой работает CBV...
-    model = Birthday
+class BirthdayFormMixin:
     # Этот класс сам может создать форму на основе модели!
     # Нет необходимости отдельно создавать форму через ModelForm.
     # Указываем поля, которые должны быть в форме:
@@ -29,9 +28,18 @@ class BirthdayCreateView(CreateView):
     form_class = BirthdayForm
     # Явным образом указываем шаблон:
     template_name = 'birthday/birthday.html'
-    # Указываем namespace:name страницы, куда будет перенаправлен пользователь
-    # после создания объекта:
-    success_url = reverse_lazy('birthday:list')
+
+
+class BirthdayDeleteView(BirthdayMixin, DeleteView):
+    pass
+
+
+class BirthdayUpdateView(BirthdayMixin, BirthdayFormMixin, UpdateView):
+    pass
+
+
+class BirthdayCreateView(BirthdayMixin, BirthdayFormMixin, CreateView):
+    pass
 
 
 # Наследуем класс от встроенного ListView:
